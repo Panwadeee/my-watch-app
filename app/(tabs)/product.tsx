@@ -68,7 +68,7 @@ export default function ProductsScreen() {
       location: '3 stores',
       status: 'Active',
       image: 'https://www.tccq.com/image/cache/catalog/1801223/Apple-Watch-Series-9-GPS-45mm-Starlight-Aluminium-Case-with-Starlight-Sport-Loop-in-Qatar-1200x1200.jpg',
-    },
+    }
   ];
 
   // ✨ 2. กรองข้อมูลสินค้า: ถ้ามีค่า category ส่งมา ให้ดึงเฉพาะรายการสินค้าที่คีย์ category ตรงกันมาแสดงผล
