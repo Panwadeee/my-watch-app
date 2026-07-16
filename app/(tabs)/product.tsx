@@ -1,6 +1,6 @@
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react'; // ✨ นำเข้า useState และ useEffect เพื่อดึงข้อมูล
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -15,15 +15,12 @@ export default function ProductsScreen() {
   const router = useRouter(); 
   const { category } = useLocalSearchParams();
 
-  // ✨ 2. กำหนด GitHub Raw URL ของคุณสำหรับการดึงข้อมูล
   const PRODUCTS_URL = 'https://raw.githubusercontent.com/Panwadeee/my-watch-app/refs/heads/main/products.json';
 
-  // ✨ 3. สร้าง State สำหรับเก็บข้อมูลและสถานะการโหลด
   const [productsData, setProductsData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // ✨ 4. ใช้ useEffect ดึงข้อมูลจาก GitHub ทันทีเมื่อหน้าจอเปิดขึ้นมา
   useEffect(() => {
     async function loadProducts() {
       try {
@@ -37,7 +34,7 @@ export default function ProductsScreen() {
         }
         
         const data = await response.json();
-        setProductsData(data); // เก็บข้อมูลลง State
+        setProductsData(data); 
       } catch (error: any) {
         console.error("Error fetching products:", error);
         setErrorMsg(error.message || "Cannot fetch online data");
@@ -49,20 +46,18 @@ export default function ProductsScreen() {
     loadProducts();
   }, []);
 
-  // ✨ 5. กรองข้อมูลสินค้า: ถ้ามีค่า category ส่งมา ให้ดึงเฉพาะรายการสินค้าที่ตรงกัน
   const displayedProducts = category
     ? productsData.filter((item) => item.category.toLowerCase() === category.toLowerCase())
     : productsData;
 
   return (
     <View style={styles.container}>
-      {/* 📌 ROW 1: Header (Menu, Title, Profile) */}
+      {/* 📌 ROW 1: Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => router.push('/modal')}>
           <Feather name="menu" size={26} color="#6200EE" />
         </TouchableOpacity>
         
-        {/* ✨ หัวข้อ Title ไดนามิกตามหมวดหมู่ที่เลือก */}
         <Text style={styles.headerTitle}>{category ? category : 'Products'}</Text>
         
         <TouchableOpacity 
@@ -73,7 +68,7 @@ export default function ProductsScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* 📌 ROW 2: Tool Bar (Search, Add Button, Filter) */}
+      {/* 📌 ROW 2: Tool Bar */}
       <View style={styles.toolBarRow}>
         <TouchableOpacity>
           <Feather name="search" size={26} color="#6200EE" />
@@ -89,7 +84,7 @@ export default function ProductsScreen() {
         </View>
       </View>
 
-      {/* ✨ ส่วนแสดงสถานะการโหลดข้อมูล */}
+      {/* สถานะการโหลด */}
       {loading && (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color="#6200EE" />
@@ -97,7 +92,7 @@ export default function ProductsScreen() {
         </View>
       )}
 
-      {/* ✨ ส่วนแสดงผลกรณีโหลดผิดพลาด */}
+      {/* กรณีโหลดผิดพลาด */}
       {errorMsg && (
         <View style={styles.centerContainer}>
           <Text style={{ color: 'red', fontWeight: 'bold' }}>เกิดข้อผิดพลาด!</Text>
@@ -105,7 +100,7 @@ export default function ProductsScreen() {
         </View>
       )}
 
-      {/* 📌 3. รายการสินค้า (FlatList) จะแสดงผลเมื่อโหลดเสร็จสมบูรณ์ */}
+      {/* 📌 3. รายการสินค้า */}
       {!loading && !errorMsg && (
         <FlatList
           data={displayedProducts} 
@@ -120,7 +115,6 @@ export default function ProductsScreen() {
           renderItem={({ item }) => (
             <View style={styles.productCard}>
               <View style={styles.cardTopSection}>
-                {/* ใช้ออบเจกต์คีย์จาก JSON ของคุณโดยตรง */}
                 <Image source={{ uri: item.image }} style={styles.productImage} />
                 <View style={styles.detailsContainer}>
                   <Text style={styles.detailText}><Text style={styles.labelBold}>Stock:</Text> {item.stock}</Text>
@@ -233,6 +227,11 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 90,
+  },
+  centerContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
   },
   productCard: {
     backgroundColor: '#FFF',
