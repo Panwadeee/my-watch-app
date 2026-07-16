@@ -2,67 +2,55 @@
   {
     "id": "1",
     "name": "G-Shock GA 2100 Limited Edition",
-    "stock": 12,
-    "stock_text": "12 in stock",
+    "stock": "12 in stock",
     "category": "Watches",
-    "location_count": 3,
-    "location_text": "3 stores",
-    "badge_status": "Active",
-    "image_url": "https://th.bing.com/th/id/OIP.dI2ipluSK2yvjt-AB4hAlgHaHa?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3"
+    "location": "3 stores",
+    "status": "Active",
+    "image": "https://th.bing.com/th/id/OIP.dI2ipluSK2yvjt-AB4hAlgHaHa?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3"
   },
   {
     "id": "2",
     "name": "casio b640wc-5a",
-    "stock": 12,
-    "stock_text": "12 in stock",
+    "stock": "12 in stock",
     "category": "Watches",
-    "location_count": 3,
-    "location_text": "3 stores",
-    "badge_status": "Active",
-    "image_url": "https://images.stockx.com/images/Casio-Vintage-B640WC-5A-Rose-Gold.jpg?fit=fill&bg=FFFFFF&w=480&h=320&fm=webp&auto=compress&dpr=2&trim=color&updated_at=1637174698&q=60"
+    "location": "3 stores",
+    "status": "Active",
+    "image": "https://images.stockx.com/images/Casio-Vintage-B640WC-5A-Rose-Gold.jpg?fit=fill&bg=FFFFFF&w=480&h=320&fm=webp&auto=compress&dpr=2&trim=color&updated_at=1637174698&q=60"
   },
   {
     "id": "3",
     "name": "Rolex Submariner Date 126610LN",
-    "stock": 12,
-    "stock_text": "12 in stock",
+    "stock": "12 in stock",
     "category": "Watches",
-    "location_count": 3,
-    "location_text": "3 stores",
-    "badge_status": "Active",
-    "image_url": "https://a.1stdibscdn.com/rolex-submariner-date-40mm-116610ln-2019-unworn-for-sale/v_26322/v_156271721652818477651/v_15627172_1652818478788_bg_processed.jpg?disable=upscale&auto=webp&quality=60&width=960"
+    "location": "3 stores",
+    "status": "Active",
+    "image": "https://a.1stdibscdn.com/rolex-submariner-date-40mm-116610ln-2019-unworn-for-sale/v_26322/v_156271721652818477651/v_15627172_1652818478788_bg_processed.jpg?disable=upscale&auto=webp&quality=60&width=960"
   },
   {
     "id": "4",
     "name": "Rolex Datejust 41 126334",
-    "stock": 12,
-    "stock_text": "12 in stock",
+    "stock": "12 in stock",
     "category": "Watches",
-    "location_count": 3,
-    "location_text": "3 stores",
-    "badge_status": "Active",
-    "image_url": "https://tse3.mm.bing.net/th/id/OIP.6LXvf8jNOmI4QNtEHzb-fwHaJ4?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
+    "location": "3 stores",
+    "status": "Active",
+    "image": "https://tse3.mm.bing.net/th/id/OIP.6LXvf8jNOmI4QNtEHzb-fwHaJ4?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
   },
   {
     "id": "5",
     "name": "Garmin Forerunner 265",
-    "stock": 12,
-    "stock_text": "12 in stock",
+    "stock": "12 in stock",
     "category": "Watches",
-    "location_count": 3,
-    "location_text": "3 stores",
-    "badge_status": "Active",
-    "image_url": "https://assets.voila.id/voila/images/product/garmin/2product-010-02810-53-Xms-2024-11-13T0931350700.jpeg"
+    "location": "3 stores",
+    "status": "Active",
+    "image": "https://assets.voila.id/voila/images/product/garmin/2product-010-02810-53-Xms-2024-11-13T0931350700.jpeg"
   },
   {
     "id": "6",
     "name": "Apple Watch Series 6 GPS",
-    "stock": 12,
-    "stock_text": "12 in stock",
+    "stock": "12 in stock",
     "category": "Watches",
-    "location_count": 3,
-    "location_text": "3 stores",
-    "badge_status": "Active",
-    "image_url": "https://www.tccq.com/image/cache/catalog/1801223/Apple-Watch-Series-9-GPS-45mm-Starlight-Aluminium-Case-with-Starlight-Sport-Loop-in-Qatar-1200x1200.jpg"
+    "location": "3 stores",
+    "status": "Active",
+    "image": "https://www.tccq.com/image/cache/catalog/1801223/Apple-Watch-Series-9-GPS-45mm-Starlight-Aluminium-Case-with-Starlight-Sport-Loop-in-Qatar-1200x1200.jpg"
   }
 ]
