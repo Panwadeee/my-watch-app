@@ -1,7 +1,8 @@
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router'; // ✨ นำเข้า useLocalSearchParams เพิ่มเติม
-import React from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react'; // ✨ นำเข้า useState และ useEffect เพื่อดึงข้อมูล
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   StyleSheet,
@@ -14,64 +15,41 @@ export default function ProductsScreen() {
   const router = useRouter(); 
   const { category } = useLocalSearchParams();
 
-  const productsData = [
-    {
-      id: '1',
-      name: 'G-Shock GA 2100 Limited Edition',
-      stock: '12 in stock',
-      category: 'Watches',
-      location: '3 stores',
-      status: 'Active',
-      image: 'https://th.bing.com/th/id/OIP.dI2ipluSK2yvjt-AB4hAlgHaHa?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3',
-    },
-    {
-      id: '2',
-      name: 'casio b640wc-5a',
-      stock: '12 in stock',
-      category: 'Watches',
-      location: '3 stores',
-      status: 'Active',
-      image: 'https://images.stockx.com/images/Casio-Vintage-B640WC-5A-Rose-Gold.jpg?fit=fill&bg=FFFFFF&w=480&h=320&fm=webp&auto=compress&dpr=2&trim=color&updated_at=1637174698&q=60',
-    },
-    {
-      id: '3',
-      name: 'Rolex Submariner Date 126610LN',
-      stock: '12 in stock',
-      category: 'Watches',
-      location: '3 stores',
-      status: 'Active',
-      image: 'https://a.1stdibscdn.com/rolex-submariner-date-40mm-116610ln-2019-unworn-for-sale/v_26322/v_156271721652818477651/v_15627172_1652818478788_bg_processed.jpg?disable=upscale&auto=webp&quality=60&width=960',
-    },
-    {
-      id: '4',
-      name: 'Rolex Datejust 41 126334',
-      stock: '12 in stock',
-      category: 'Watches',
-      location: '3 stores',
-      status: 'Active',
-      image: 'https://tse3.mm.bing.net/th/id/OIP.6LXvf8jNOmI4QNtEHzb-fwHaJ4?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    },
-    {
-      id: '5',
-      name: 'Garmin Forerunner 265',
-      stock: '12 in stock',
-      category: 'Watches',
-      location: '3 stores',
-      status: 'Active',
-      image: 'https://assets.voila.id/voila/images/product/garmin/2product-010-02810-53-Xms-2024-11-13T0931350700.jpeg',
-    },
-    {
-      id: '6',
-      name: 'Apple Watch Series 6 GPS',
-      stock: '12 in stock',
-      category: 'Watches',
-      location: '3 stores',
-      status: 'Active',
-      image: 'https://www.tccq.com/image/cache/catalog/1801223/Apple-Watch-Series-9-GPS-45mm-Starlight-Aluminium-Case-with-Starlight-Sport-Loop-in-Qatar-1200x1200.jpg',
-    }
-  ];
+  // ✨ 2. กำหนด GitHub Raw URL ของคุณสำหรับการดึงข้อมูล
+  const PRODUCTS_URL = 'https://raw.githubusercontent.com/Panwadeee/my-watch-app/refs/heads/main/products.json';
 
-  // ✨ 2. กรองข้อมูลสินค้า: ถ้ามีค่า category ส่งมา ให้ดึงเฉพาะรายการสินค้าที่คีย์ category ตรงกันมาแสดงผล
+  // ✨ 3. สร้าง State สำหรับเก็บข้อมูลและสถานะการโหลด
+  const [productsData, setProductsData] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // ✨ 4. ใช้ useEffect ดึงข้อมูลจาก GitHub ทันทีเมื่อหน้าจอเปิดขึ้นมา
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        setLoading(true);
+        setErrorMsg(null);
+        
+        const response = await fetch(PRODUCTS_URL);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP Error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setProductsData(data); // เก็บข้อมูลลง State
+      } catch (error: any) {
+        console.error("Error fetching products:", error);
+        setErrorMsg(error.message || "Cannot fetch online data");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
+
+  // ✨ 5. กรองข้อมูลสินค้า: ถ้ามีค่า category ส่งมา ให้ดึงเฉพาะรายการสินค้าที่ตรงกัน
   const displayedProducts = category
     ? productsData.filter((item) => item.category.toLowerCase() === category.toLowerCase())
     : productsData;
@@ -84,7 +62,7 @@ export default function ProductsScreen() {
           <Feather name="menu" size={26} color="#6200EE" />
         </TouchableOpacity>
         
-        {/* ✨ ปรับหัวข้อ Title ให้ไดนามิกตามหมวดหมู่ที่เลือก */}
+        {/* ✨ หัวข้อ Title ไดนามิกตามหมวดหมู่ที่เลือก */}
         <Text style={styles.headerTitle}>{category ? category : 'Products'}</Text>
         
         <TouchableOpacity 
@@ -101,7 +79,6 @@ export default function ProductsScreen() {
           <Feather name="search" size={26} color="#6200EE" />
         </TouchableOpacity>
         <View style={styles.actionButtons}>
-          {/* ✨ ปรับพาร์ทเป็น /(tabs)/add */}
           <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(tabs)/add')}>
             <Text style={styles.addButtonText}>+ Add Product</Text>
           </TouchableOpacity>
@@ -112,57 +89,81 @@ export default function ProductsScreen() {
         </View>
       </View>
 
-      {/* 📌 3. รายการสินค้า */}
-      <FlatList
-        data={displayedProducts} 
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <View style={styles.productCard}>
-            <View style={styles.cardTopSection}>
-              <Image source={{ uri: item.image }} style={styles.productImage} />
-              <View style={styles.detailsContainer}>
-                <Text style={styles.detailText}><Text style={styles.labelBold}>Stock:</Text> {item.stock}</Text>
-                <Text style={styles.detailText}><Text style={styles.labelBold}>Category:</Text> {item.category}</Text>
-                <Text style={styles.detailText}><Text style={styles.labelBold}>Location:</Text> {item.location}</Text>
-                <View style={styles.statusRow}>
-                  <View style={styles.activeBadge}>
-                    <Text style={styles.activeBadgeText}>{item.status}</Text>
+      {/* ✨ ส่วนแสดงสถานะการโหลดข้อมูล */}
+      {loading && (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#6200EE" />
+          <Text style={{ marginTop: 10, color: '#666' }}>กำลังโหลดข้อมูลสินค้าจากระบบออนไลน์...</Text>
+        </View>
+      )}
+
+      {/* ✨ ส่วนแสดงผลกรณีโหลดผิดพลาด */}
+      {errorMsg && (
+        <View style={styles.centerContainer}>
+          <Text style={{ color: 'red', fontWeight: 'bold' }}>เกิดข้อผิดพลาด!</Text>
+          <Text style={{ color: '#666', fontSize: 13, textAlign: 'center', marginTop: 4 }}>{errorMsg}</Text>
+        </View>
+      )}
+
+      {/* 📌 3. รายการสินค้า (FlatList) จะแสดงผลเมื่อโหลดเสร็จสมบูรณ์ */}
+      {!loading && !errorMsg && (
+        <FlatList
+          data={displayedProducts} 
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.centerContainer}>
+              <Text style={{ color: '#999' }}>ไม่มีรายการสินค้าที่จะแสดงผล</Text>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <View style={styles.productCard}>
+              <View style={styles.cardTopSection}>
+                {/* ใช้ออบเจกต์คีย์จาก JSON ของคุณโดยตรง */}
+                <Image source={{ uri: item.image }} style={styles.productImage} />
+                <View style={styles.detailsContainer}>
+                  <Text style={styles.detailText}><Text style={styles.labelBold}>Stock:</Text> {item.stock}</Text>
+                  <Text style={styles.detailText}><Text style={styles.labelBold}>Category:</Text> {item.category}</Text>
+                  <Text style={styles.detailText}><Text style={styles.labelBold}>Location:</Text> {item.location}</Text>
+                  <View style={styles.statusRow}>
+                    <View style={styles.activeBadge}>
+                      <Text style={styles.activeBadgeText}>{item.status}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.arrowButton}>
+                      <Feather name="chevron-right" size={16} color="#6200EE" />
+                    </TouchableOpacity>
                   </View>
-                  <TouchableOpacity style={styles.arrowButton}>
-                    <Feather name="chevron-right" size={16} color="#6200EE" />
-                  </TouchableOpacity>
                 </View>
               </View>
+              <Text style={styles.productName}>{item.name}</Text>
             </View>
-            <Text style={styles.productName}>{item.name}</Text>
-          </View>
-        )}
-      />
+          )}
+        />
+      )}
 
-      {/* 📌 4. Bottom Navigation Bar (✨ ปรับลิงก์ให้วิ่งเข้าหาโฟลเดอร์กลุ่ม tabs ทั้งหมดป้องกัน Unmatched Route) */}
+      {/* 📌 4. Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
-  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}>
-    <Ionicons name="home-outline" size={22} color="#A78BFA" />
-    <Text style={[styles.navText, { color: '#A78BFA' }]}>Home</Text>
-  </TouchableOpacity>
-  
-  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/add')}>
-    <Ionicons name="add-circle-outline" size={22} color="#A78BFA" />
-    <Text style={[styles.navText, { color: '#A78BFA' }]}>Add</Text>
-  </TouchableOpacity>
-  
-  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/product')}>
-    <Ionicons name="bag" size={22} color="#6200EE" />
-    <Text style={[styles.navText, { color: '#6200EE', fontWeight: '700' }]}>Products</Text>
-  </TouchableOpacity>
-  
-  <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/categories')}>
-    <Ionicons name="shapes-outline" size={22} color="#A78BFA" />
-    <Text style={[styles.navText, { color: '#A78BFA' }]}>Categories</Text>
-  </TouchableOpacity>
-</View>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}>
+          <Ionicons name="home-outline" size={22} color="#A78BFA" />
+          <Text style={[styles.navText, { color: '#A78BFA' }]}>Home</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/add')}>
+          <Ionicons name="add-circle-outline" size={22} color="#A78BFA" />
+          <Text style={[styles.navText, { color: '#A78BFA' }]}>Add</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/product')}>
+          <Ionicons name="bag" size={22} color="#6200EE" />
+          <Text style={[styles.navText, { color: '#6200EE', fontWeight: '700' }]}>Products</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/categories')}>
+          <Ionicons name="shapes-outline" size={22} color="#A78BFA" />
+          <Text style={[styles.navText, { color: '#A78BFA' }]}>Categories</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
