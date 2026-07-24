@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   StyleSheet,
@@ -15,39 +16,99 @@ export default function ProductsScreen() {
   const router = useRouter(); 
   const { category } = useLocalSearchParams();
 
-  const PRODUCTS_URL = 'https://raw.githubusercontent.com/Panwadeee/my-watch-app/refs/heads/main/products.json';
+  const API_BASE_URL = 'http://119.59.102.161:3033/api';
 
   const [productsData, setProductsData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  
+  const [authToken, setAuthToken] = useState<string | null>('mock-token-123'); 
 
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        setLoading(true);
-        setErrorMsg(null);
-        
-        const response = await fetch(PRODUCTS_URL);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP Error! Status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setProductsData(data); 
-      } catch (error: any) {
-        console.error("Error fetching products:", error);
-        setErrorMsg(error.message || "Cannot fetch online data");
-      } finally {
-        setLoading(false);
+  const handleLogout = () => {
+    setAuthToken(null);
+    router.replace('/settings'); 
+  };
+
+  const apiCall = async (endpoint: string, options: any = {}) => {
+    const config = {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...(authToken && { Authorization: `Bearer ${authToken}` }),
+        ...options.headers,
+      },
+    };
+
+    try {
+      const targetUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+      const response = await fetch(targetUrl, config);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
       }
+      
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      console.error("API Call Error:", error);
+      throw error;
+    }
+  };
+
+  // 📥 ฟังก์ชัน fetchProducts (ดึงข้อมูลจาก /products ผ่าน Cloud Server)
+  const fetchProducts = async () => {
+    if (!authToken) {
+      setErrorMsg('Please log in to view products');
+      Alert.alert('Error', 'Please log in to view products');
+      return;
     }
 
-    loadProducts();
+    try {
+      setLoading(true);
+      setErrorMsg(null);
+
+      // เรียกใช้งานผ่าน endpoint /products ของ Cloud Server
+      const data = await apiCall('/products');
+
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format received');
+      }
+
+      // แปลงข้อมูล storeAvailability
+      const parsedData = data.map((product: any) => ({
+        ...product,
+        storeAvailability: typeof product.storeAvailability === 'string'
+          ? JSON.parse(product.storeAvailability || '[]')
+          : product.storeAvailability || [],
+      }));
+
+      setProductsData(parsedData);
+      console.log(`Loaded ${parsedData.length} products`);
+
+    } catch (err: any) {
+      console.error('Fetch products error:', err);
+      setErrorMsg(err.message);
+
+      if (err.message.includes('Authentication') || err.message.includes('login') || err.message.includes('HTTP Error! Status: 401')) {
+        Alert.alert('Session Expired', 'Please login again.', [
+          { text: 'OK', onPress: handleLogout }
+        ]);
+      } else {
+        Alert.alert('Error', `Failed to load products: ${err.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 📌 เรียกใช้งานตอนเปิดหน้าจอ
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
   const displayedProducts = category
-    ? productsData.filter((item) => item.category.toLowerCase() === category.toLowerCase())
+    ? productsData.filter((item) => item.category && item.category.toLowerCase() === category.toLowerCase())
     : productsData;
 
   return (
@@ -88,12 +149,12 @@ export default function ProductsScreen() {
       {loading && (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color="#6200EE" />
-          <Text style={{ marginTop: 10, color: '#666' }}>กำลังโหลดข้อมูลสินค้าจากระบบออนไลน์...</Text>
+          <Text style={{ marginTop: 10, color: '#666' }}>กำลังโหลดข้อมูลสินค้าจาก Cloud Server...</Text>
         </View>
       )}
 
       {/* กรณีโหลดผิดพลาด */}
-      {errorMsg && (
+      {errorMsg && !loading && (
         <View style={styles.centerContainer}>
           <Text style={{ color: 'red', fontWeight: 'bold' }}>เกิดข้อผิดพลาด!</Text>
           <Text style={{ color: '#666', fontSize: 13, textAlign: 'center', marginTop: 4 }}>{errorMsg}</Text>
@@ -104,7 +165,7 @@ export default function ProductsScreen() {
       {!loading && !errorMsg && (
         <FlatList
           data={displayedProducts} 
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
