@@ -87,6 +87,7 @@ export default function LoginScreen() {
             <Text style={styles.label}>Username</Text>
             <TextInput
               style={styles.input}
+              nativeID="login-username"
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -99,6 +100,7 @@ export default function LoginScreen() {
             <Text style={styles.label}>Password</Text>
             <TextInput
               style={styles.input}
+              nativeID="login-password"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
