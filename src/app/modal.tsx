@@ -1,107 +1,165 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+import { useAuth } from '@/context/AuthContext';
 
 export default function MenuModalScreen() {
   const router = useRouter();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    const doLogout = () => {
+      logout();
+      router.replace('/login');
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Are you sure you want to log out?')) doLogout();
+      return;
+    }
+
+    Alert.alert('Log out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Log out', style: 'destructive', onPress: doLogout },
+    ]);
+  };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4C0099" />
+    <View style={styles.modalOverlay}>
+      <StatusBar barStyle="light-content" backgroundColor="rgba(0, 0, 0, 0.6)" />
+      
+      <View style={styles.menuCard}>
+        {/* Header ของ Modal */}
+        <View style={styles.menuHeader}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => router.back()}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Feather name="x" size={26} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.menuHeaderTitle}>Inventor. io</Text>
+          <View style={{ width: 26 }} />
+        </View>
 
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
-          <Ionicons name="close" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.logoText}>Inventor.io</Text>
-        <View style={{ width: 28 }} />
-      </View>
+        {/* รายการเมนู */}
+        <View style={styles.menuItemsContainer}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.replace('/(tabs)')}
+          >
+            <Text style={styles.menuText}>Home</Text>
+          </TouchableOpacity>
 
-      <View style={styles.menuList}>
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.replace('/(tabs)')}>
-          <Text style={styles.menuText}>Home</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.replace('/product')}
+          >
+            <Text style={styles.menuText}>Products</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.replace('/product')}>
-          <Text style={styles.menuText}>Products</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.replace('/categories')}
+          >
+            <Text style={styles.menuText}>Categories</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.replace('/categories')}>
-          <Text style={styles.menuText}>Categories</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.replace('/stores')}
+          >
+            <Text style={styles.menuText}>Stores</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.replace('/stores')}>
-          <Text style={styles.menuText}>Stores</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.replace('/finances')}
+          >
+            <Text style={styles.menuText}>Finances</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.replace('/finances')}>
-          <Text style={styles.menuText}>Finances</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.replace('/settings')}
+          >
+            <Text style={styles.menuText}>Settings</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.replace('/settings')}>
-          <Text style={styles.menuText}>Settings</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.logoutButton} onPress={() => router.replace('/login')}>
-          <Text style={styles.logoutText}>Log out</Text>
-        </TouchableOpacity>
+        {/* ปุ่ม Log out ด้านล่าง */}
+        <View style={styles.menuFooter}>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
+            <Text style={styles.logoutText}>Log out</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: '#4C0099',
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    justifyContent: 'space-between',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
     alignItems: 'center',
-    height: 60,
+    padding: 16,
+  },
+  menuCard: {
+    width: '100%',
+    height: '90%',
+    backgroundColor: '#1E293B',
+    borderRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  menuHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   closeButton: {
     padding: 4,
   },
-  logoText: {
-    fontSize: 22,
-    fontWeight: 'bold',
+  menuHeaderTitle: {
+    fontSize: 20,
+    fontWeight: '700',
     color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
-  menuList: {
+  menuItemsContainer: {
     alignItems: 'center',
-    gap: 24,
-    marginVertical: 40,
+    justifyContent: 'center',
   },
   menuItem: {
-    paddingVertical: 4,
+    paddingVertical: 12,
     width: '100%',
     alignItems: 'center',
   },
   menuText: {
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
     color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
-  footer: {
+  menuFooter: {
     alignItems: 'center',
-    marginBottom: 40,
+    paddingBottom: 10,
   },
-  logoutButton: {
-    paddingVertical: 10,
+  logoutBtn: {
+    paddingVertical: 8,
     paddingHorizontal: 20,
   },
   logoutText: {
     fontSize: 18,
-    color: '#FFFFFF',
     fontWeight: '500',
+    color: '#FFFFFF',
     opacity: 0.9,
   },
 });

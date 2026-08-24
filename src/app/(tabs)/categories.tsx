@@ -1,8 +1,9 @@
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router'; // 1. นำเข้า useRouter สำหรับจัดการลิงก์
+import { useRouter } from 'expo-router';
 import React from 'react';
 import {
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,41 +11,36 @@ import {
 } from 'react-native';
 
 export default function CategoriesScreen() {
-  const router = useRouter(); // 2. ประกาศตัวแปรเรียกใช้งาน router
+  const router = useRouter();
 
-  // ข้อมูลหมวดหมู่จำลองตามรูปภาพ
+  // ข้อมูลหมวดหมู่
   const categoriesData = [
-    { id: '1', name: 'Bottoms', items: '49 items', icon: 'tshirt-crew', iconType: 'MaterialCommunityIcons' },
-    { id: '2', name: 'Coats', items: '23 items', icon: 'roller-skate', iconType: 'MaterialCommunityIcons' }, 
-    { id: '3', name: 'Jeans', items: '11 items', icon: 'hat-fedora', iconType: 'MaterialCommunityIcons' }, 
-    { id: '4', name: 'Watches', items: '7 items', icon: 'watch', iconType: 'MaterialCommunityIcons' }, // เปลี่ยนไอคอนให้ตรงกับนาฬิกา
-    { id: '5', name: 'Tops', items: '7 items', icon: 'backpack', iconType: 'MaterialCommunityIcons' },
+    { id: '1', name: 'Bottoms', items: '49 items', icon: 'tshirt-crew' },
+    { id: '2', name: 'Coats', items: '23 items', icon: 'roller-skate' }, 
+    { id: '3', name: 'Jeans', items: '11 items', icon: 'hat-fedora' }, 
+    { id: '4', name: 'Watches', items: '7 items', icon: 'watch' }, 
+    { id: '5', name: 'Tops', items: '7 items', icon: 'backpack' },
   ];
-
-  // ฟังก์ชันสลับไอคอนให้ตรงตามแต่ละหมวดหมู่
-  const renderIcon = (item) => {
-    return <MaterialCommunityIcons name={item.icon} size={32} color="#6200EE" />;
-  };
 
   return (
     <View style={styles.container}>
-      {/* 📌 ROW 1: Header (Menu, Title, Profile) */}
+      {/* 📌 Header */}
       <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => router.push('/modal')}>
-          <Feather name="menu" size={26} color="#6200EE" />
+        <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/modal' as any)}>
+          <Feather name="menu" size={24} color="#F8FAFC" />
         </TouchableOpacity>
         
         <Text style={styles.headerTitle}>Categories</Text>
         
         <TouchableOpacity 
-          style={styles.profileButton}
-          onPress={() => router.push('/settings')}
+          style={styles.iconButton}
+          onPress={() => router.push('/settings' as any)}
         >
-          <Feather name="user" size={22} color="#FFF" />
+          <Feather name="user" size={22} color="#F8FAFC" />
         </TouchableOpacity>
       </View>
 
-      {/* 📌 2. รายการหมวดหมู่ (FlatList) */}
+      {/* 📌 รายการหมวดหมู่ (FlatList) */}
       <FlatList
         data={categoriesData}
         keyExtractor={(item) => item.id}
@@ -53,12 +49,11 @@ export default function CategoriesScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.categoryCard}
-            // ✨ แก้วิธีการส่งข้อมูลตรงนี้ใหม่ทั้งหมด โดยเปลี่ยนเป็น String URL แบบส่ง Query Parameter ตรงตัว 
-            onPress={() => router.push(`/product?category=${encodeURIComponent(item.name)}`)}
+            onPress={() => router.push(`/product?category=${encodeURIComponent(item.name)}` as any)}
           >
-            {/* กล่องใส่ไอคอนสีม่วงอ่อน */}
+            {/* กล่องใส่ไอคอน */}
             <View style={styles.iconContainer}>
-              {renderIcon(item)}
+              <MaterialCommunityIcons name={item.icon as any} size={28} color="#D4AF37" />
             </View>
             
             {/* ข้อความชื่อหมวดหมู่และจำนวน items */}
@@ -70,26 +65,26 @@ export default function CategoriesScreen() {
         )}
       />
 
-      {/* 📌 3. Bottom Navigation Bar */}
+      {/* 📌 Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
-          <Ionicons name="home-outline" size={22} color="#A78BFA" />
-          <Text style={[styles.navText, { color: '#A78BFA' }]}>Home</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)' as any)}>
+          <Ionicons name="home-outline" size={22} color="#94A3B8" />
+          <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/add')}>
-          <Ionicons name="add-circle-outline" size={22} color="#A78BFA" />
-          <Text style={[styles.navText, { color: '#A78BFA' }]}>Add</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/add' as any)}>
+          <Ionicons name="add-circle-outline" size={22} color="#94A3B8" />
+          <Text style={styles.navText}>Add</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/product')}>
-          <Ionicons name="bag-outline" size={22} color="#A78BFA" />
-          <Text style={[styles.navText, { color: '#A78BFA' }]}>Products</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/product' as any)}>
+          <Ionicons name="bag-outline" size={22} color="#94A3B8" />
+          <Text style={styles.navText}>Products</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/categories')}>
-          <Ionicons name="shapes" size={22} color="#6200EE" />
-          <Text style={[styles.navText, { color: '#6200EE', fontWeight: '700' }]}>Categories</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/categories' as any)}>
+          <Ionicons name="grid" size={22} color="#D4AF37" />
+          <Text style={[styles.navText, { color: '#D4AF37', fontWeight: '700' }]}>Categories</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -99,87 +94,90 @@ export default function CategoriesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF', 
-    paddingHorizontal: 24,
-    paddingTop: 50,
+    backgroundColor: '#0F172A', 
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? 30 : 50,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 20,
+    paddingVertical: 10,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
-    color: '#000000',
+    color: '#F8FAFC',
+    letterSpacing: 1,
   },
-  profileButton: {
-    width: 44,
-    height: 44,
-    backgroundColor: '#6200EE',
-    borderRadius: 22,
+  iconButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#1E293B',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
     alignItems: 'center',
     justifyContent: 'center',
   },
   listContent: {
-    paddingBottom: 120, 
+    paddingBottom: 100, 
   },
   categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F7', 
-    padding: 20,
-    borderRadius: 24, 
-    marginBottom: 20,
+    backgroundColor: '#1E293B', 
+    padding: 16,
+    borderRadius: 16, 
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
   iconContainer: {
-    width: 76,
-    height: 76,
-    backgroundColor: '#EAE5FF', 
-    borderRadius: 16,
+    width: 60,
+    height: 60,
+    backgroundColor: '#0F172A', 
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 20,
+    marginRight: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
   textContainer: {
     justifyContent: 'center',
   },
   categoryName: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#000',
+    color: '#F8FAFC',
     marginBottom: 4,
   },
   categoryItems: {
-    fontSize: 16,
-    color: '#9CA3AF',
+    fontSize: 13,
+    color: '#94A3B8',
   },
   bottomNav: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFF',
+    backgroundColor: '#1E293B',
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    borderTopColor: '#334155',
   },
   navItem: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   navText: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 11,
+    marginTop: 2,
+    color: '#94A3B8',
+    fontWeight: '500',
   },
 });

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const crypto = require('crypto');
 
 const app = express();
 const port = process.env.PORT || 3033;
@@ -21,6 +22,7 @@ const pool = mysql.createPool({
   timezone: '+07:00',
 });
 
+// Test Connection
 (async function testMySQL() {
   try {
     const conn = await pool.getConnection();
@@ -32,10 +34,124 @@ const pool = mysql.createPool({
   }
 })();
 
+// ตาราง Users อยู่ในฐานข้อมูลเดียวกับ Inventory
+const USERS_TABLE = 'Users';
+
+// สร้างตาราง Users (ถ้ายังไม่มี) ตาม schema ที่มีอยู่แล้ว + สร้างบัญชี admin เริ่มต้นให้อัตโนมัติ
+(async function setupUsersTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ${USERS_TABLE} (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        email VARCHAR(100) NOT NULL UNIQUE,
+        role VARCHAR(20) NOT NULL DEFAULT 'user'
+      )
+    `);
+
+    const [admins] = await pool.query(`SELECT id FROM ${USERS_TABLE} WHERE role = ? LIMIT 1`, ['admin']);
+    if (admins.length === 0) {
+      await pool.query(
+        `INSERT INTO ${USERS_TABLE} (username, password, email, role) VALUES (?, ?, ?, ?)`,
+        ['admin', hashPassword('admin123'), 'admin@inventory.local', 'admin']
+      );
+      console.log('Seeded default admin account -> username: admin / password: admin123');
+    }
+  } catch (err) {
+    console.error('Users table setup failed:', err.message);
+  }
+})();
+
+// เข้ารหัส/ตรวจสอบรหัสผ่านด้วย Node crypto (scrypt) ไม่ต้องลง package เพิ่ม
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, stored) {
+  const [salt, hash] = String(stored || '').split(':');
+  if (!salt || !hash) return false;
+  const hashBuffer = Buffer.from(hash, 'hex');
+  const suppliedBuffer = crypto.scryptSync(password, salt, 64);
+  if (hashBuffer.length !== suppliedBuffer.length) return false;
+  return crypto.timingSafeEqual(hashBuffer, suppliedBuffer);
+}
+
+// API Routes
 app.get("/api", (req, res) => {
   res.send("API is running");
 });
 
+// POST (สมัครสมาชิกใหม่) - บทบาทเริ่มต้นเป็น user เสมอ ป้องกันการตั้งตัวเองเป็น admin
+app.post('/api/register', async (req, res) => {
+  try {
+    const b = req.body || {};
+    const username = (b.username || '').trim();
+    const email = (b.email || '').trim();
+    const password = b.password || '';
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
+    }
+
+    const [existing] = await pool.query(
+      `SELECT id FROM ${USERS_TABLE} WHERE username = ? OR email = ?`,
+      [username, email]
+    );
+    if (existing.length > 0) {
+      return res.status(409).json({ success: false, message: 'มีชื่อผู้ใช้หรืออีเมลนี้ในระบบแล้ว' });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO ${USERS_TABLE} (username, password, email, role) VALUES (?, ?, ?, ?)`,
+      [username, hashPassword(password), email, 'user']
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'สมัครสมาชิกเรียบร้อยแล้ว',
+      user: { id: result.insertId, username, email, role: 'user' },
+    });
+  } catch (error) {
+    console.error('Register Error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST (เข้าสู่ระบบ)
+app.post('/api/login', async (req, res) => {
+  try {
+    const b = req.body || {};
+    const username = (b.username || '').trim();
+    const password = b.password || '';
+
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: 'กรุณากรอก Username และ Password' });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT id, username, email, password, role FROM ${USERS_TABLE} WHERE username = ? OR email = ?`,
+      [username, username]
+    );
+
+    if (rows.length === 0 || !verifyPassword(password, rows[0].password)) {
+      return res.status(401).json({ success: false, message: 'Username หรือ Password ไม่ถูกต้อง' });
+    }
+
+    const user = rows[0];
+    res.json({
+      success: true,
+      user: { id: user.id, username: user.username, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    console.error('Login Error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET ทั้งหมด
 app.get('/api/products', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM Inventory ORDER BY id DESC');
@@ -45,6 +161,7 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+// GET รายชิ้น
 app.get('/api/products/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -56,6 +173,7 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
+// POST (สร้างสินค้าใหม่)
 app.post('/api/products', async (req, res) => {
   try {
     const b = req.body || {};
@@ -83,6 +201,7 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
+// PUT (แก้ไขสินค้า)
 app.put('/api/products/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -119,16 +238,43 @@ app.put('/api/products/:id', async (req, res) => {
   }
 });
 
+// DELETE (ลบสินค้าออก DB)
 app.delete('/api/products/:id', async (req, res) => {
   try {
-    const [result] = await pool.query('DELETE FROM Inventory WHERE id = ? OR productCode = ?', [req.params.id, req.params.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'ไม่พบสินค้า' });
-    res.json({ success: true, id: req.params.id });
+    const rawId = req.params.id;
+    const bodyId = req.body?.id || req.body?.productCode || rawId;
+    
+    // ค้นหา ID ที่แท้จริงใน DB ก่อนลบ
+    const [rows] = await pool.query(
+      'SELECT id FROM Inventory WHERE id = ? OR productCode = ? OR id = ? OR productCode = ?', 
+      [rawId, rawId, bodyId, bodyId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'ไม่พบสินค้าในระบบ' });
+    }
+
+    const realDbId = rows[0].id;
+    const [result] = await pool.query('DELETE FROM Inventory WHERE id = ?', [realDbId]);
+
+    if (result.affectedRows > 0) {
+      return res.json({ success: true, message: 'ลบข้อมูลสำเร็จ', deletedId: realDbId });
+    } else {
+      return res.status(400).json({ success: false, message: 'ไม่สามารถลบรายการนี้ได้' });
+    }
   } catch (error) {
+    console.error('DELETE Error:', error.message);
+    if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'ไม่สามารถลบได้เนื่องจากสินค้านี้ถูกใช้อ้างอิงอยู่ในตารางอื่น' 
+      });
+    }
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
+// Start Server
 app.listen(port, '0.0.0.0', () => {
   console.log(`🚀 API running on port ${port}`);
 });
