@@ -2,17 +2,17 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Image,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import { useAuth } from '@/context/AuthContext';
@@ -85,7 +85,7 @@ export default function ProductScreen() {
           location_text: item.Location || item.location_text || item.location || 'Default',
           brand: item.Brand || item.brand || 'Unnamed Brand',
           badge_status: item.Status || item.badge_status || item.status || 'Active',
-          image_url: item.image || item.image_url || item.img || '',
+          image_url: item.image_url || item.image || item.img || '',
           description: item.description || item.Description || '',
           sizes: item.sizes || item.Sizes || '',
         };
@@ -314,7 +314,7 @@ export default function ProductScreen() {
                 <Image
                   source={{
                     uri:
-                      item.image_url && item.image_url.startsWith('http')
+                      item.image_url
                         ? item.image_url
                         : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
                   }}

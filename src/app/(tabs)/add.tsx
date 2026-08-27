@@ -1,9 +1,11 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   Modal,
   Platform,
   SafeAreaView,
@@ -20,11 +22,11 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function AddProductScreen() {
   const router = useRouter();
-  const { isAdmin } = useAuth();
+  const { isAdmin, authLoading } = useAuth();
 
   // เฉพาะ admin เท่านั้นที่เข้าหน้านี้ได้ - กันกรณี user เข้าตรงๆ ผ่าน URL
   useEffect(() => {
-    if (!isAdmin) {
+    if (!authLoading && !isAdmin) {
       if (Platform.OS === 'web') {
         window.alert('เฉพาะผู้ดูแลระบบ (admin) เท่านั้นที่เพิ่มสินค้าได้');
       } else {
@@ -32,7 +34,7 @@ export default function AddProductScreen() {
       }
       router.replace('/(tabs)/product');
     }
-  }, [isAdmin]);
+  }, [authLoading, isAdmin, router]);
 
   // URL API Backend
   const API_BASE_URL = 'http://119.59.102.161:3033/api';
@@ -44,7 +46,8 @@ export default function AddProductScreen() {
   const [itemCode, setItemCode] = useState('');
   const [stockSize, setStockSize] = useState('');
   const [storesAvailability, setStoresAvailability] = useState('');
-  const [productPhotos, setProductPhotos] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [uploadedImage, setUploadedImage] = useState('');
 
   const [showStoreDropdown, setShowStoreDropdown] = useState(false);
   
@@ -52,6 +55,32 @@ export default function AddProductScreen() {
   const storeOptions = ['Manchester, UK', 'Yorkshire, UK', 'Hull, UK'];
 
   const [loading, setLoading] = useState(false);
+
+  const pickProductImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission Required', 'Please allow the app to access your image library');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      if (asset.base64) {
+        setUploadedImage(`data:${asset.mimeType || 'image/jpeg'};base64,${asset.base64}`);
+        setImageUrl('');
+      } else {
+        Alert.alert('เลือกรูปไม่สำเร็จ', 'ไม่สามารถอ่านไฟล์รูปจากเครื่องได้');
+      }
+    }
+  };
 
   const resetForm = () => {
     setName('');
@@ -61,7 +90,8 @@ export default function AddProductScreen() {
     setItemCode('');
     setStockSize('');
     setStoresAvailability('');
-    setProductPhotos('');
+    setImageUrl('');
+    setUploadedImage('');
   };
 
   const handleSaveProduct = async () => {
@@ -87,7 +117,7 @@ export default function AddProductScreen() {
         category: category.trim() || null,
         location: storesAvailability.trim() || null,
         status: 'Active',
-        image: productPhotos.trim() || null,
+        image_url: uploadedImage || imageUrl.trim() || null,
         productCode: itemCode.trim(),
         description: description.trim() || null,
       };
@@ -230,11 +260,21 @@ export default function AddProductScreen() {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Image URL</Text>
+          <Text style={styles.inputLabel}>Image URL (Optional)</Text>
+          <TouchableOpacity style={styles.imagePickerButton} onPress={pickProductImage} activeOpacity={0.8}>
+            <Ionicons name="image-outline" size={20} color="#0F172A" />
+            <Text style={styles.imagePickerButtonText}>Select Image</Text>
+          </TouchableOpacity>
+          {uploadedImage || imageUrl ? (
+            <Image source={{ uri: uploadedImage || imageUrl }} style={styles.imagePreview} resizeMode="contain" />
+          ) : null}
           <TextInput
             style={styles.photoInput}
-            value={productPhotos}
-            onChangeText={setProductPhotos}
+            value={imageUrl}
+            onChangeText={(value) => {
+              setImageUrl(value);
+              setUploadedImage('');
+            }}
             multiline={true}
             textAlignVertical="top"
             placeholder="https://..."
@@ -407,6 +447,24 @@ const styles = StyleSheet.create({
     color: '#F8FAFC',
     borderWidth: 1,
     borderColor: '#334155',
+  },
+  imagePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#D4AF37',
+    borderRadius: 10,
+    paddingVertical: 12,
+    marginBottom: 10,
+  },
+  imagePickerButtonText: { color: '#0F172A', fontWeight: '700' },
+  imagePreview: {
+    width: '100%',
+    height: 180,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    marginBottom: 10,
   },
   dropdownInput: {
     backgroundColor: '#1E293B',

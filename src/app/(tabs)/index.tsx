@@ -2,20 +2,20 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  Modal,
-  Platform,
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Image,
+    Modal,
+    Platform,
+    RefreshControl,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import { useAuth } from '@/context/AuthContext';
@@ -216,10 +216,14 @@ export default function HomeScreen() {
   });
 
   const resolveImageUrl = (item: Product) => {
-    const rawPath = item.image || item.image_url || item.img || item.product_image;
+    const rawPath = item.image_url || item.image || item.img || item.product_image;
 
     if (!rawPath) return PLACEHOLDER_IMAGE;
-    if (rawPath.startsWith('http://') || rawPath.startsWith('https://')) {
+    if (
+      rawPath.startsWith('http://') ||
+      rawPath.startsWith('https://') ||
+      rawPath.startsWith('data:image/')
+    ) {
       return rawPath;
     }
     return `${SERVER_BASE_URL}${rawPath.startsWith('/') ? '' : '/'}${rawPath}`;

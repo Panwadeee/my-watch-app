@@ -2,16 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import { useAuth } from '@/context/AuthContext';
@@ -131,7 +131,7 @@ export default function DetailsScreen() {
           <Image
             source={{
               uri:
-                typeof image_url === 'string' && image_url.startsWith('http')
+                typeof image_url === 'string' && image_url.length > 0
                   ? image_url
                   : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
             }}
