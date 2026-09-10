@@ -1,0 +1,169 @@
+{
+  "mode": "inventory_db",
+  "run_id": "20260910T054831Z",
+  "features": [
+    "price",
+    "stock"
+  ],
+  "matrix_shape": [
+    9,
+    2
+  ],
+  "parameters": {
+    "selected_k": 3,
+    "random_state": 42,
+    "n_init": 10,
+    "scaler": "StandardScaler"
+  },
+  "diagnostics": [
+    {
+      "k": 2,
+      "inertia": 8.995504022166367,
+      "silhouette": 0.5767364741087138,
+      "realized_clusters": 2
+    },
+    {
+      "k": 3,
+      "inertia": 3.2771096268889868,
+      "silhouette": 0.7027076187577914,
+      "realized_clusters": 3
+    },
+    {
+      "k": 4,
+      "inertia": 0.16112765976548762,
+      "silhouette": 0.7783228608761187,
+      "realized_clusters": 4
+    },
+    {
+      "k": 5,
+      "inertia": 0.05238806338092603,
+      "silhouette": 0.6804500105407328,
+      "realized_clusters": 5
+    },
+    {
+      "k": 6,
+      "inertia": 0.01837743504754637,
+      "silhouette": 0.48453998426608386,
+      "realized_clusters": 6
+    }
+  ],
+  "selected": {
+    "k": 3,
+    "inertia": 3.2771096268889868,
+    "silhouette": 0.7027076187577914,
+    "cluster_sizes": {
+      "0": 2,
+      "1": 5,
+      "2": 2
+    }
+  },
+  "centroids_original_units": [
+    {
+      "cluster": 0,
+      "price_thb_per_unit": 475000.0,
+      "stock_units": 12.0
+    },
+    {
+      "cluster": 1,
+      "price_thb_per_unit": 16418.0,
+      "stock_units": 14.2
+    },
+    {
+      "cluster": 2,
+      "price_thb_per_unit": 15850.000000000015,
+      "stock_units": 0.5
+    }
+  ],
+  "products": [
+    {
+      "id": 56,
+      "productCode": "A-3",
+      "name": "Apple Series 8",
+      "category": "AUTOMATIC",
+      "location": "Manchester, UK",
+      "price": 25200.0,
+      "stock": 0.0,
+      "cluster": 2
+    },
+    {
+      "id": 55,
+      "productCode": "C-3",
+      "name": "Casio AQ-230A-7AMQYDF",
+      "category": "LUXURY",
+      "location": "Yorkshire, UK",
+      "price": 2590.0,
+      "stock": 25.0,
+      "cluster": 1
+    },
+    {
+      "id": 49,
+      "productCode": "A-2",
+      "name": "Apple Watch 11",
+      "category": "AUTOMATIC",
+      "location": "Hull, UK",
+      "price": 55000.0,
+      "stock": 10.0,
+      "cluster": 1
+    },
+    {
+      "id": 6,
+      "productCode": "R-2",
+      "name": "Rolex Datejust 41 126334",
+      "category": "LUXURY",
+      "location": "Manchester, UK",
+      "price": 450000.0,
+      "stock": 12.0,
+      "cluster": 0
+    },
+    {
+      "id": 5,
+      "productCode": "A-1",
+      "name": "Apple Watch Series 6 GPS",
+      "category": "AUTOMATIC",
+      "location": "Yorkshire, UK",
+      "price": 6500.0,
+      "stock": 1.0,
+      "cluster": 2
+    },
+    {
+      "id": 4,
+      "productCode": "G-1",
+      "name": "Garmin Forerunner 265",
+      "category": "SPORT",
+      "location": "Yorkshire, UK",
+      "price": 16500.0,
+      "stock": 12.0,
+      "cluster": 1
+    },
+    {
+      "id": 3,
+      "productCode": "R-1",
+      "name": "Rolex Submariner Date 126610LN",
+      "category": "LUXURY",
+      "location": "Manchester, UK",
+      "price": 500000.0,
+      "stock": 12.0,
+      "cluster": 0
+    },
+    {
+      "id": 2,
+      "productCode": "C-2",
+      "name": "casio b640wc-5a",
+      "category": "SPORT",
+      "location": "Yorkshire, UK",
+      "price": 2500.0,
+      "stock": 12.0,
+      "cluster": 1
+    },
+    {
+      "id": 1,
+      "productCode": "C-1",
+      "name": "G-Shock GA 2100 Limited Edition",
+      "category": "SPORT",
+      "location": "Manchester, UK",
+      "price": 5500.0,
+      "stock": 12.0,
+      "cluster": 1
+    }
+  ]
+}
